@@ -1,0 +1,764 @@
+SQL> 
+SQL> DROP TABLE centre CASCADE CONSTRAINTS;
+
+Table CENTRE dropped.
+
+SQL> 
+SQL> DROP TABLE class_staff CASCADE CONSTRAINTS;
+
+Table CLASS_STAFF dropped.
+
+SQL> 
+SQL> DROP TABLE class_type CASCADE CONSTRAINTS;
+
+Table CLASS_TYPE dropped.
+
+SQL> 
+SQL> DROP TABLE facility CASCADE CONSTRAINTS;
+
+Table FACILITY dropped.
+
+SQL> 
+SQL> DROP TABLE fitness_assessment CASCADE CONSTRAINTS;
+
+Table FITNESS_ASSESSMENT dropped.
+
+SQL> 
+SQL> DROP TABLE fitness_class CASCADE CONSTRAINTS;
+
+Table FITNESS_CLASS dropped.
+
+SQL> 
+SQL> DROP TABLE member CASCADE CONSTRAINTS;
+
+Table MEMBER dropped.
+
+SQL> 
+SQL> DROP TABLE member_session_attendance CASCADE CONSTRAINTS;
+
+Table MEMBER_SESSION_ATTENDANCE dropped.
+
+SQL> 
+SQL> DROP TABLE sign_up CASCADE CONSTRAINTS;
+
+Table SIGN_UP dropped.
+
+SQL> 
+SQL> DROP TABLE staff CASCADE CONSTRAINTS;
+
+Table STAFF dropped.
+
+SQL> 
+SQL> -- predefined type, no DDL - MDSYS.SDO_GEOMETRY
+SQL> 
+SQL> -- predefined type, no DDL - XMLTYPE
+SQL> 
+SQL> CREATE TABLE centre (
+  2      centre_id             NUMBER(3) NOT NULL,
+  3      centre_name           VARCHAR2(50 CHAR) NOT NULL,
+  4      centre_addr_street    VARCHAR2(50 CHAR) NOT NULL,
+  5      centre_addr_town      VARCHAR2(50 CHAR) NOT NULL,
+  6      centre_addr_postcode  CHAR(5 CHAR) NOT NULL,
+  7      centre_phone          CHAR(10 CHAR) NOT NULL,
+  8      manager_id            NUMBER(8) NOT NULL
+  9  );
+
+Table CENTRE created.
+
+SQL> 
+SQL> COMMENT ON COLUMN centre.centre_id IS
+  2      'Centre unique identifier';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN centre.centre_name IS
+  2      'Name of the centre';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN centre.centre_addr_street IS
+  2      'Part of the centre address: street';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN centre.centre_addr_town IS
+  2      'Part of the centre address: town';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN centre.centre_addr_postcode IS
+  2      'Part of the centre address: postcode';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN centre.centre_phone IS
+  2      'Centre phone number';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN centre.manager_id IS
+  2      'Unique identifier for the staff';
+
+Comment created.
+
+SQL> 
+SQL> CREATE UNIQUE INDEX centre__idx ON
+  2      centre (
+  3          manager_id
+  4      ASC );
+
+INDEX CENTRE__IDX created.
+
+SQL> 
+SQL> ALTER TABLE centre ADD CONSTRAINT fitness_centre_pk PRIMARY KEY ( centre_id );
+
+Table CENTRE altered.
+
+SQL> 
+SQL> CREATE TABLE class_staff (
+  2      staff_id            NUMBER(8) NOT NULL,
+  3      class_no            NUMBER(4) NOT NULL,
+  4      centre_id           NUMBER(3) NOT NULL,
+  5      class_staff_leader  CHAR(1 CHAR) NOT NULL
+  6  );
+
+Table CLASS_STAFF created.
+
+SQL> 
+SQL> ALTER TABLE class_staff
+  2      ADD CONSTRAINT chk_leader CHECK ( class_staff_leader IN ( 'N', 'Y' ) );
+
+Table CLASS_STAFF altered.
+
+SQL> 
+SQL> COMMENT ON COLUMN class_staff.staff_id IS
+  2      'Unique identifier for the staff';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN class_staff.class_no IS
+  2      'Unique within the centre class identifier ';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN class_staff.centre_id IS
+  2      'Centre unique identifier';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN class_staff.class_staff_leader IS
+  2      'Defines whether the staff member is a class leader:
+  3  	- Y: yes
+  4  	- N: no';
+
+Comment created.
+
+SQL> 
+SQL> ALTER TABLE class_staff
+  2      ADD CONSTRAINT class_staff_pk PRIMARY KEY ( staff_id,
+  3                                                  class_no,
+  4                                                  centre_id );
+
+Table CLASS_STAFF altered.
+
+SQL> 
+SQL> CREATE TABLE class_type (
+  2      class_type_name  VARCHAR2(20 CHAR) NOT NULL,
+  3      class_type_id    NUMBER(7) NOT NULL
+  4  );
+
+Table CLASS_TYPE created.
+
+SQL> 
+SQL> COMMENT ON COLUMN class_type.class_type_name IS
+  2      'The name of the class type';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN class_type.class_type_id IS
+  2      'Unique identifier of a class type';
+
+Comment created.
+
+SQL> 
+SQL> ALTER TABLE class_type ADD CONSTRAINT class_type_pk PRIMARY KEY ( class_type_id );
+
+Table CLASS_TYPE altered.
+
+SQL> 
+SQL> CREATE TABLE facility (
+  2      fac_room_no   NUMBER(3) NOT NULL,
+  3      centre_id     NUMBER(3) NOT NULL,
+  4      fac_name      VARCHAR2(50 CHAR) NOT NULL,
+  5      fac_descr     VARCHAR2(50 CHAR),
+  6      fac_capacity  NUMBER(3) NOT NULL
+  7  );
+
+Table FACILITY created.
+
+SQL> 
+SQL> COMMENT ON COLUMN facility.fac_room_no IS
+  2      'The unique within a centre facility id';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN facility.centre_id IS
+  2      'Centre unique identifier';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN facility.fac_name IS
+  2      'Facility name';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN facility.fac_descr IS
+  2      'Facility description';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN facility.fac_capacity IS
+  2      'Capacity of the facility';
+
+Comment created.
+
+SQL> 
+SQL> ALTER TABLE facility ADD CONSTRAINT facility_pk PRIMARY KEY ( fac_room_no,
+  2                                                                centre_id );
+
+Table FACILITY altered.
+
+SQL> 
+SQL> CREATE TABLE fitness_assessment (
+  2      fitassess_date            DATE NOT NULL,
+  3      member_no                 NUMBER(8) NOT NULL,
+  4      staff_id                  NUMBER(8) NOT NULL,
+  5      fitassess_weight          NUMBER(3) NOT NULL,
+  6      fitassess_blood_pressure  VARCHAR2(7 CHAR) NOT NULL,
+  7      fitassess_bmi             NUMBER(3, 1) NOT NULL,
+  8      fitassess_vo2max          NUMBER(3, 1) NOT NULL
+  9  );
+
+Table FITNESS_ASSESSMENT created.
+
+SQL> 
+SQL> COMMENT ON COLUMN fitness_assessment.fitassess_date IS
+  2      'Date of the fitness assessment';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN fitness_assessment.member_no IS
+  2      'Unique identifier of the member';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN fitness_assessment.staff_id IS
+  2      'Unique identifier for the staff';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN fitness_assessment.fitassess_weight IS
+  2      'Fitness assessment weight measured';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN fitness_assessment.fitassess_blood_pressure IS
+  2      'Fitness assessment blood pressure measured';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN fitness_assessment.fitassess_bmi IS
+  2      'Fitness assessment BMI measured';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN fitness_assessment.fitassess_vo2max IS
+  2      'Fitness assessment VO2Max measured';
+
+Comment created.
+
+SQL> 
+SQL> ALTER TABLE fitness_assessment ADD CONSTRAINT fitness_assessment_pk PRIMARY KEY (
+  2  fitassess_date,
+  3                                                                                  member_no );
+
+Table FITNESS_ASSESSMENT altered.
+
+SQL> 
+SQL> CREATE TABLE fitness_class (
+  2      class_no                NUMBER(4) NOT NULL,
+  3      centre_id               NUMBER(3) NOT NULL,
+  4      class_datetime          DATE NOT NULL,
+  5      class_descr             VARCHAR2(50 CHAR),
+  6      class_max_participants  NUMBER(3) NOT NULL,
+  7      class_sess_no           NUMBER(3) NOT NULL,
+  8      class_cost              NUMBER(7, 2) NOT NULL,
+  9      class_duration          NUMBER(3) NOT NULL,
+ 10      fac_room_no             NUMBER(3) NOT NULL,
+ 11      class_nature            CHAR(1 CHAR) NOT NULL,
+ 12      class_type_id           NUMBER(7) NOT NULL
+ 13  );
+
+Table FITNESS_CLASS created.
+
+SQL> 
+SQL> ALTER TABLE fitness_class
+  2      ADD CONSTRAINT chk_restrictions CHECK ( class_nature IN ( 'F', 'M', 'U' ) );
+
+Table FITNESS_CLASS altered.
+
+SQL> 
+SQL> COMMENT ON COLUMN fitness_class.class_no IS
+  2      'Unique within the centre class identifier ';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN fitness_class.centre_id IS
+  2      'Centre unique identifier';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN fitness_class.class_datetime IS
+  2      'Date time of the first class';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN fitness_class.class_descr IS
+  2      'Class description';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN fitness_class.class_max_participants IS
+  2      'Maximum number of class participants';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN fitness_class.class_sess_no IS
+  2      'No of sessions in that class';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN fitness_class.class_cost IS
+  2      'The cost of the class';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN fitness_class.class_duration IS
+  2      'Duration of a signle class in minutes';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN fitness_class.fac_room_no IS
+  2      'The unique within a centre facility id';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN fitness_class.class_nature IS
+  2      'Nature of the class: 
+  3  	- U: unrestricted
+  4  	- F: female
+  5  	- M: male';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN fitness_class.class_type_id IS
+  2      'Unique identifier of a class type';
+
+Comment created.
+
+SQL> 
+SQL> ALTER TABLE fitness_class ADD CONSTRAINT class_pk PRIMARY KEY ( class_no,
+  2                                                                  centre_id );
+
+Table FITNESS_CLASS altered.
+
+SQL> 
+SQL> CREATE TABLE member (
+  2      member_no           NUMBER(8) NOT NULL,
+  3      member_name         VARCHAR2(20 CHAR) NOT NULL,
+  4      member_address      VARCHAR2(50 CHAR) NOT NULL,
+  5      member_phone        CHAR(10 CHAR) NOT NULL,
+  6      member_joindate     DATE NOT NULL,
+  7      home_centre_id      NUMBER(3) NOT NULL,
+  8      member_recommender  NUMBER(8)
+  9  );
+
+Table MEMBER created.
+
+SQL> 
+SQL> COMMENT ON COLUMN member.member_no IS
+  2      'Unique identifier of the member';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN member.member_name IS
+  2      'Member full name';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN member.member_address IS
+  2      'Member address';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN member.member_phone IS
+  2      'Member phone number';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN member.member_joindate IS
+  2      'Date when the member joined ';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN member.home_centre_id IS
+  2      'Centre unique identifier';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN member.member_recommender IS
+  2      'Unique identifier of the member';
+
+Comment created.
+
+SQL> 
+SQL> ALTER TABLE member ADD CONSTRAINT member_pk PRIMARY KEY ( member_no );
+
+Table MEMBER altered.
+
+SQL> 
+SQL> CREATE TABLE member_session_attendance (
+  2      mem_sess_date    DATE NOT NULL,
+  3      mem_sess_attend  CHAR(1 CHAR) NOT NULL,
+  4      sign_up_no       NUMBER(7) NOT NULL
+  5  );
+
+Table MEMBER_SESSION_ATTENDANCE created.
+
+SQL> 
+SQL> ALTER TABLE member_session_attendance
+  2      ADD CONSTRAINT chk_attendance CHECK ( mem_sess_attend IN ( 'N', 'Y' ) );
+
+Table MEMBER_SESSION_ATTENDANCE altered.
+
+SQL> 
+SQL> COMMENT ON COLUMN member_session_attendance.mem_sess_date IS
+  2      'Date of the session';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN member_session_attendance.mem_sess_attend IS
+  2      'Defines whether the member attended a session:
+  3  	- Y: yes
+  4  	- N: no';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN member_session_attendance.sign_up_no IS
+  2      'Sign up unique identifier number';
+
+Comment created.
+
+SQL> 
+SQL> ALTER TABLE member_session_attendance ADD CONSTRAINT member_session_attendance_pk
+  2  PRIMARY KEY ( mem_sess_date,
+  3                                                                                    sign_up_no );
+
+Table MEMBER_SESSION_ATTENDANCE altered.
+
+SQL> 
+SQL> CREATE TABLE sign_up (
+  2      member_no             NUMBER(8) NOT NULL,
+  3      centre_id             NUMBER(3) NOT NULL,
+  4      class_no              NUMBER(4) NOT NULL,
+  5      sign_up_pay_date      DATE NOT NULL,
+  6      sign_up_total_attend  NUMBER(3) NOT NULL,
+  7      sign_up_no            NUMBER(7) NOT NULL
+  8  );
+
+Table SIGN_UP created.
+
+SQL> 
+SQL> COMMENT ON COLUMN sign_up.member_no IS
+  2      'Unique identifier of the member';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN sign_up.centre_id IS
+  2      'Centre unique identifier';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN sign_up.class_no IS
+  2      'Unique within the centre class identifier ';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN sign_up.sign_up_pay_date IS
+  2      'Date when member signed up for the class';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN sign_up.sign_up_total_attend IS
+  2      'Total attendance per one signed up contract';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN sign_up.sign_up_no IS
+  2      'Sign up unique identifier number';
+
+Comment created.
+
+SQL> 
+SQL> ALTER TABLE sign_up ADD CONSTRAINT sign_up_pk PRIMARY KEY ( sign_up_no );
+
+Table SIGN_UP altered.
+
+SQL> 
+SQL> ALTER TABLE sign_up
+  2      ADD CONSTRAINT sign_up_nk UNIQUE ( member_no,
+  3                                         centre_id,
+  4                                         class_no );
+
+Table SIGN_UP altered.
+
+SQL> 
+SQL> CREATE TABLE staff (
+  2      staff_id                   NUMBER(8) NOT NULL,
+  3      staff_fname                VARCHAR2(20 CHAR) NOT NULL,
+  4      staff_lname                VARCHAR2(20 CHAR) NOT NULL,
+  5      staff_phone                CHAR(10 CHAR) NOT NULL,
+  6      staff_start_date           DATE NOT NULL,
+  7      staff_role                 CHAR(1 CHAR) NOT NULL,
+  8      staff_first_aid_certified  CHAR(1 CHAR) NOT NULL,
+  9      centre_id                  NUMBER(3) NOT NULL
+ 10  );
+
+Table STAFF created.
+
+SQL> 
+SQL> ALTER TABLE staff
+  2      ADD CONSTRAINT chk_staff_role CHECK ( staff_role IN ( 'A', 'C', 'D', 'M', 'P',
+  3                                                            'S', 'T' ) );
+
+Table STAFF altered.
+
+SQL> 
+SQL> ALTER TABLE staff
+  2      ADD CONSTRAINT chk_first_aid_certified CHECK ( staff_first_aid_certified IN (
+  3      'N', 'Y' ) );
+
+Table STAFF altered.
+
+SQL> 
+SQL> COMMENT ON COLUMN staff.staff_id IS
+  2      'Unique identifier for the staff';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN staff.staff_fname IS
+  2      'First name of the staff member';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN staff.staff_lname IS
+  2      'Last name of the staff member';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN staff.staff_phone IS
+  2      'Staff member phone number';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN staff.staff_start_date IS
+  2      'Staff member first day of employment';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN staff.staff_role IS
+  2      'Role of the staff member:
+  3  	- A: administrator 
+  4  	- C: cleaner
+  5  	- D: instructor dry
+  6  	- M: manager 
+  7  	- P: instructor pool
+  8  	- S: sales
+  9  	- T: security';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN staff.staff_first_aid_certified IS
+  2      'Defines whether the staff member is first aid certified:
+  3  	- Y: yes
+  4  	- N: no';
+
+Comment created.
+
+SQL> 
+SQL> COMMENT ON COLUMN staff.centre_id IS
+  2      'Centre unique identifier';
+
+Comment created.
+
+SQL> 
+SQL> ALTER TABLE staff ADD CONSTRAINT staff_pk PRIMARY KEY ( staff_id );
+
+Table STAFF altered.
+
+SQL> 
+SQL> ALTER TABLE facility
+  2      ADD CONSTRAINT centre_facility FOREIGN KEY ( centre_id )
+  3          REFERENCES centre ( centre_id );
+
+Table FACILITY altered.
+
+SQL> 
+SQL> ALTER TABLE member
+  2      ADD CONSTRAINT centre_member FOREIGN KEY ( home_centre_id )
+  3          REFERENCES centre ( centre_id );
+
+Table MEMBER altered.
+
+SQL> 
+SQL> ALTER TABLE staff
+  2      ADD CONSTRAINT centre_staff FOREIGN KEY ( centre_id )
+  3          REFERENCES centre ( centre_id );
+
+Table STAFF altered.
+
+SQL> 
+SQL> ALTER TABLE fitness_class
+  2      ADD CONSTRAINT class_facility FOREIGN KEY ( fac_room_no,
+  3                                                  centre_id )
+  4          REFERENCES facility ( fac_room_no,
+  5                                centre_id );
+
+Table FITNESS_CLASS altered.
+
+SQL> 
+SQL> ALTER TABLE sign_up
+  2      ADD CONSTRAINT class_sign_up FOREIGN KEY ( class_no,
+  3                                                 centre_id )
+  4          REFERENCES fitness_class ( class_no,
+  5                                     centre_id );
+
+Table SIGN_UP altered.
+
+SQL> 
+SQL> ALTER TABLE class_staff
+  2      ADD CONSTRAINT class_staff FOREIGN KEY ( class_no,
+  3                                               centre_id )
+  4          REFERENCES fitness_class ( class_no,
+  5                                     centre_id );
+
+Table CLASS_STAFF altered.
+
+SQL> 
+SQL> ALTER TABLE centre
+  2      ADD CONSTRAINT manager_centre FOREIGN KEY ( manager_id )
+  3          REFERENCES staff ( staff_id );
+
+Table CENTRE altered.
+
+SQL> 
+SQL> ALTER TABLE fitness_assessment
+  2      ADD CONSTRAINT member_fitness_assessment FOREIGN KEY ( member_no )
+  3          REFERENCES member ( member_no );
+
+Table FITNESS_ASSESSMENT altered.
+
+SQL> 
+SQL> ALTER TABLE member
+  2      ADD CONSTRAINT member_recommender FOREIGN KEY ( member_recommender )
+  3          REFERENCES member ( member_no );
+
+Table MEMBER altered.
+
+SQL> 
+SQL> ALTER TABLE sign_up
+  2      ADD CONSTRAINT member_sign_up FOREIGN KEY ( member_no )
+  3          REFERENCES member ( member_no );
+
+Table SIGN_UP altered.
+
+SQL> 
+SQL> ALTER TABLE member_session_attendance
+  2      ADD CONSTRAINT sign_up_attendance FOREIGN KEY ( sign_up_no )
+  3          REFERENCES sign_up ( sign_up_no );
+
+Table MEMBER_SESSION_ATTENDANCE altered.
+
+SQL> 
+SQL> ALTER TABLE class_staff
+  2      ADD CONSTRAINT staff_class FOREIGN KEY ( staff_id )
+  3          REFERENCES staff ( staff_id );
+
+Table CLASS_STAFF altered.
+
+SQL> 
+SQL> ALTER TABLE fitness_assessment
+  2      ADD CONSTRAINT staff_fitness_assessment FOREIGN KEY ( staff_id )
+  3          REFERENCES staff ( staff_id );
+
+Table FITNESS_ASSESSMENT altered.
+
+SQL> 
+SQL> ALTER TABLE fitness_class
+  2      ADD CONSTRAINT type_class FOREIGN KEY ( class_type_id )
+  3          REFERENCES class_type ( class_type_id );
+
+Table FITNESS_CLASS altered.
+
+SQL> 
+SQL> 
+SQL> SPOOL OFF
